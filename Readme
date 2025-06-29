@@ -1,0 +1,3 @@
+Here is the proposal of project
+  - Blinking two LEDs with two tasks
+  - Reading time from DS3231 and display on OLED SSD1306

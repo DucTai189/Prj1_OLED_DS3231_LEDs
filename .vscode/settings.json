@@ -1,0 +1,7 @@
+{
+    "C_Cpp.errorSquiggles": "disabled",
+    "files.associations": {
+        "gpio_init.h": "c",
+        "ds3231.h": "c"
+    }
+}

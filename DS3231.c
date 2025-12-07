@@ -12,7 +12,7 @@ unsigned char dec_to_bcd(int dec)
     return ((dec / 10) << 4) | (dec % 10);
 }
 
-__uint8_t DS3231_SetTime(int file) 
+__uint8_t DS3231_SetTime() 
 {
     __uint8_t ret = 0;
     unsigned char SettingTime_au8[8] = {0x00};

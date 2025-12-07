@@ -15,11 +15,11 @@
 
 #define SETTING_TIME            0x00 // Register address to set time        
 #define SETTING_SECOND          0x00 // Register address for seconds
-#define SETTING_MINUTE          22 // Register address for minutes
-#define SETTING_HOUR            18 // Register address for hours
-#define SETTING_DAY_OF_WEEK     0x01 // Register address for day of week
-#define SETTING_DATE            29 // Register address for date
-#define SETTING_MONTH           6 // Register address for month    
+#define SETTING_MINUTE          14 // Register address for minutes
+#define SETTING_HOUR            23 // Register address for hours
+#define SETTING_DAY_OF_WEEK     0x02 // Register address for day of week
+#define SETTING_DATE            24 // Register address for date
+#define SETTING_MONTH           11 // Register address for month    
 #define SETTING_YEAR            25 // Register address for yeaR
 
 #include <linux/types.h>
@@ -43,7 +43,7 @@ typedef struct
 }DS3231_st;
 int bcd_to_dec(unsigned char bcd) ;
 unsigned char dec_to_bcd(int dec)  ;
-__uint8_t DS3231_SetTime(int file) ;
+__uint8_t DS3231_SetTime() ;
 __uint8_t DS3231_GetTime(DS3231_st *GettingTime_st) ;
 
 #endif

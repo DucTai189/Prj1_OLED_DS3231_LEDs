@@ -3,8 +3,8 @@
 pthread_mutex_t lock_Blink_Led16 = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t cond_Blink_Led16 = PTHREAD_COND_INITIALIZER;
 
-pthread_mutex_t lock_Blink_Led12 = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t cond_Blink_Led12 = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t lock_Blink_Led13 = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t cond_Blink_Led13 = PTHREAD_COND_INITIALIZER;
 
 pthread_mutex_t lock_Oled = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t cond_Oled = PTHREAD_COND_INITIALIZER;
@@ -26,14 +26,14 @@ void* Task_Blink_Led16(void* arg)
     return NULL;
 }
 
-void* Task_Blink_Led12(void* arg) 
+void* Task_Blink_Led13(void* arg) 
 {
     while (1) 
     {
-        pthread_mutex_lock(&lock_Blink_Led12);
-        pthread_cond_wait(&cond_Blink_Led12, &lock_Blink_Led12);  // Wait for timer to signal
-        blink_led_12();
-        pthread_mutex_unlock(&lock_Blink_Led12);
+        pthread_mutex_lock(&lock_Blink_Led13);
+        pthread_cond_wait(&cond_Blink_Led13, &lock_Blink_Led13);  // Wait for timer to signal
+        blink_led_13();
+        pthread_mutex_unlock(&lock_Blink_Led13);
     }
     return NULL;
 }
@@ -82,7 +82,7 @@ void timer_handler(int sig, siginfo_t* si, void* uc)
         break;
 
         case 2:
-            pthread_cond_signal(&cond_Blink_Led12);
+            pthread_cond_signal(&cond_Blink_Led13);
         break;
 
         case 3:
@@ -120,39 +120,20 @@ void create_timer(timer_t* timerid, int signal_id, int ms_period)
 
 void blink_led_16()
 {
-    static __uint8_t timer_u8 = 0;
-    
-    if (timer_u8 <50)
-    {
-        gpiod_line_set_value(line_GPIO16, 1);
-    }
-    else if (timer_u8 < 100)
-    {
-        gpiod_line_set_value(line_GPIO16, 0);
-    }
-    else
-    {
-        timer_u8 = 0;
-    }
-    timer_u8++;
+
+    static temp_value =0;
+
+    gpiod_line_set_value(line_GPIO16, (temp_value));
+    temp_value ^= 1;
+   
 }
 
-void blink_led_12()
+void blink_led_13()
 {
-    static __uint8_t timer_u8 = 0;
-    if (timer_u8 <2)
-    {
-        gpiod_line_set_value(line_GPIO12, 1);
-    }
-    else if (timer_u8 < 4)
-    {
-        gpiod_line_set_value(line_GPIO12, 0);
-    }
-    else
-    {
-        timer_u8 = 0;
-    }
-    timer_u8++;
+    static temp_value =0;
+
+    gpiod_line_set_value(line_GPIO13, (temp_value));
+    temp_value ^= 1;
 }
 
 void Oled_SSD_1303_Display()
@@ -203,6 +184,8 @@ void set_realtime_priority(pthread_t thread, int priority)
     {
         printf("Set real-time priority %d\n", priority);
     }
+
+    
 }
 
 int main() 
@@ -211,6 +194,7 @@ int main()
     Init_OLED();
     Init_GPIO();
     INIT_DS3231();
+  //  DS3231_SetTime();
  // Setup signal
     struct sigaction sa;
     sa.sa_flags = SA_SIGINFO;
@@ -219,13 +203,13 @@ int main()
     sigaction(SIGRTMIN, &sa, NULL);
 
     // Start threads
-    pthread_t thread_Blink_Led16, thread_Blink_Led12, thread_Oled, thread_DS3231;
+    pthread_t thread_Blink_Led16, thread_Blink_Led13, thread_Oled, thread_DS3231;
     pthread_create(&thread_Blink_Led16, NULL, Task_Blink_Led16, NULL);
     // Set real-time priority for Led 16 thread
     set_realtime_priority(thread_Blink_Led16, 50); 
-    pthread_create(&thread_Blink_Led12, NULL, Task_Blink_Led12, NULL);
+    pthread_create(&thread_Blink_Led13, NULL, Task_Blink_Led13, NULL);
     // Set real-time priority for Led 12 thread
-    set_realtime_priority(thread_Blink_Led12, 40); 
+    set_realtime_priority(thread_Blink_Led13, 40); 
 
     // Create OLED thread
      pthread_create(&thread_Oled, NULL, Task_Oled, NULL);
@@ -239,7 +223,7 @@ int main()
 
     // Create timers
     timer_t timer1, timer2, timer3,timer4;
-    create_timer(&timer1, 1, 10);   // Task Blink Led 17 - 10ms
+    create_timer(&timer1, 1, 200);   // Task Blink Led 17 - 10ms
     create_timer(&timer2, 2, 250);   // Task Blink Led 27 - 250ms
     create_timer(&timer3, 3, 500);   // Task Display Oled - 1000ms (increased from 500ms)
     create_timer(&timer4, 4, 1000);   // Task Read DS3231 - 1000ms
